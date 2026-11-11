@@ -314,6 +314,8 @@
   .chip{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600;white-space:nowrap;}
   .chip.ok{background:rgba(62,207,142,0.15);color:var(--ok);}
   .chip.pendiente{background:rgba(224,166,62,0.15);color:var(--warn);}
+  .chip.revision{background:rgba(79,140,255,0.15);color:var(--accent);}
+  .chip.rechazada{background:rgba(226,83,77,0.15);color:var(--err);}
   .form-justificar{margin-top:10px;display:none;}
   .form-justificar.visible{display:block;}
   .form-justificar textarea{
@@ -723,6 +725,18 @@ let alumnos = JSON.parse(localStorage.getItem('ca_alumnos') || '[]');
 let asistencias = JSON.parse(localStorage.getItem('ca_asistencias') || '[]');
 let faltas = JSON.parse(localStorage.getItem('ca_faltas') || '[]');
 function guardarFaltas(){ localStorage.setItem('ca_faltas', JSON.stringify(faltas)); }
+
+// Migración: faltas antiguas sin estado de revisión del profesor
+(function migrarFaltas(){
+  let cambio = false;
+  faltas.forEach(f=>{
+    if(f.estadoRevision === undefined){
+      f.estadoRevision = f.justificada ? 'pendiente' : '';
+      cambio = true;
+    }
+  });
+  if(cambio) guardarFaltas();
+})();
 
 // Cuentas de profesor: [{usuario, clave, materia, nombreCompleto, idPlataforma}]
 let profesores = JSON.parse(localStorage.getItem('ca_profesores') || 'null');
@@ -1291,19 +1305,55 @@ function renderFaltasProfesor(){
   const todas = faltas.slice().sort((a,b)=> a.fecha < b.fecha ? 1 : -1);
   document.getElementById('empty-faltas').classList.toggle('hidden', todas.length > 0);
   cont.innerHTML = todas.map(f=>{
-    const chip = f.justificada
-      ? '<span class="chip ok">Justificada</span>'
-      : '<span class="chip pendiente">Sin justificar</span>';
-    const detalle = f.justificada
-      ? '<p class="note" style="margin-top:6px;">"' + escaparHtml(f.textoJustificacion || '') + '"' +
-        (f.archivoNombre ? ' · <a href="' + f.archivoData + '" download="' + escaparHtml(f.archivoNombre) + '" style="color:var(--accent);">Ver archivo adjunto</a>' : '') +
-        '</p>'
+    const estado = f.estadoRevision || '';
+    let chip;
+    if(estado === 'aprobada') chip = '<span class="chip ok">Justificada</span>';
+    else if(estado === 'pendiente') chip = '<span class="chip revision">En revisión</span>';
+    else if(estado === 'rechazada') chip = '<span class="chip rechazada">Rechazada</span>';
+    else chip = '<span class="chip pendiente">Sin justificar</span>';
+
+    const comprobante = f.archivoNombre
+      ? ' · <a href="' + f.archivoData + '" download="' + escaparHtml(f.archivoNombre) + '" style="color:var(--accent);">Ver archivo adjunto</a>'
       : '';
+    let detalle = '';
+    if(f.justificada){
+      detalle = '<p class="note" style="margin-top:6px;">"' + escaparHtml(f.textoJustificacion || '') + '"' + comprobante + '</p>';
+    }
+    let acciones = '';
+    if(estado === 'pendiente'){
+      acciones = '<div class="row" style="margin-top:8px;">' +
+        '<button class="btn btn-validar-falta" type="button" data-id="' + f.id + '">Validar</button>' +
+        '<button class="btn danger btn-rechazar-falta" type="button" data-id="' + f.id + '">Rechazar</button>' +
+        '</div>';
+    }
     return '<div class="falta-card"><div class="cabecera"><span>' + escaparHtml(f.nombre) +
       (f.grupo ? ' · ' + escaparHtml(f.grupo) : '') + ' — ' + f.fecha +
-      (f.materia ? ' · ' + escaparHtml(f.materia) : '') + '</span>' + chip + '</div>' + detalle + '</div>';
+      (f.materia ? ' · ' + escaparHtml(f.materia) : '') + '</span>' + chip + '</div>' + detalle + acciones + '</div>';
   }).join('');
 }
+
+function validarFalta(id){
+  const falta = faltas.find(f=>f.id === id);
+  if(!falta) return;
+  falta.estadoRevision = 'aprobada';
+  guardarFaltas();
+  renderFaltasProfesor();
+}
+
+function rechazarFalta(id){
+  const falta = faltas.find(f=>f.id === id);
+  if(!falta) return;
+  falta.estadoRevision = 'rechazada';
+  guardarFaltas();
+  renderFaltasProfesor();
+}
+
+document.getElementById('log-faltas').addEventListener('click', (ev)=>{
+  const btnValidar = ev.target.closest('.btn-validar-falta');
+  if(btnValidar){ validarFalta(btnValidar.getAttribute('data-id')); return; }
+  const btnRechazar = ev.target.closest('.btn-rechazar-falta');
+  if(btnRechazar){ rechazarFalta(btnRechazar.getAttribute('data-id')); }
+});
 
 /* ---------- MI CUENTA (profesor) ---------- */
 document.getElementById('btn-cambiar-clave').addEventListener('click', ()=>{
@@ -1489,16 +1539,25 @@ function renderMisFaltas(misFaltas){
   const cont = document.getElementById('log-faltas-alumno');
   document.getElementById('empty-faltas-alumno').classList.toggle('hidden', misFaltas.length > 0);
   cont.innerHTML = misFaltas.map(f=>{
-    const chip = f.justificada
-      ? '<span class="chip ok">Justificada</span>'
-      : '<span class="chip pendiente">Sin justificar</span>';
-    let detalle = '';
-    if(f.justificada){
-      detalle = '<p class="note" style="margin-top:6px;">"' + escaparHtml(f.textoJustificacion || '') + '"' +
-        (f.archivoNombre ? ' · <a href="' + f.archivoData + '" download="' + escaparHtml(f.archivoNombre) + '" style="color:var(--accent);">' + iconoClip() + ' Ver comprobante</a>' : '') +
-        '</p>';
+    const estado = f.estadoRevision || '';
+    let chip, detalle;
+    const comprobante = f.archivoNombre
+      ? ' · <a href="' + f.archivoData + '" download="' + escaparHtml(f.archivoNombre) + '" style="color:var(--accent);">' + iconoClip() + ' Ver comprobante</a>'
+      : '';
+    if(estado === 'aprobada'){
+      chip = '<span class="chip ok">Justificada</span>';
+      detalle = '<p class="note" style="margin-top:6px;">"' + escaparHtml(f.textoJustificacion || '') + '"' + comprobante + '</p>';
+    }else if(estado === 'pendiente'){
+      chip = '<span class="chip revision">En revisión</span>';
+      detalle = '<p class="note" style="margin-top:6px;">"' + escaparHtml(f.textoJustificacion || '') + '"' + comprobante +
+        '<br>Tu profesor aún no ha revisado esta justificación.</p>';
     }else{
-      detalle = '<div class="form-justificar" id="form-justificar-' + f.id + '">' +
+      // '' (sin justificar) o 'rechazada': mostrar formulario para (re)justificar
+      chip = estado === 'rechazada' ? '<span class="chip rechazada">Rechazada</span>' : '<span class="chip pendiente">Sin justificar</span>';
+      const avisoRechazo = estado === 'rechazada'
+        ? '<p class="note" style="margin-top:6px;">Tu profesor rechazó la justificación anterior. Puedes escribir una nueva.</p>'
+        : '';
+      detalle = avisoRechazo + '<div class="form-justificar" id="form-justificar-' + f.id + '">' +
         '<textarea id="texto-justificar-' + f.id + '" placeholder="Escribe el motivo de tu falta..." rows="2"></textarea>' +
         '<input type="file" id="archivo-justificar-' + f.id + '" accept="image/*,.pdf">' +
         '<div class="row"><button class="btn btn-enviar-justificacion" type="button" data-id="' + f.id + '">Enviar justificación</button></div>' +
@@ -1538,6 +1597,7 @@ async function enviarJustificacion(id){
     }
   }
   falta.justificada = true;
+  falta.estadoRevision = 'pendiente';
   falta.textoJustificacion = texto;
   falta.archivoData = archivoData;
   falta.archivoNombre = archivoNombre;
