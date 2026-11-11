@@ -38,7 +38,23 @@
       radial-gradient(circle at 88% 0%, rgba(62,207,142,0.10), transparent 40%),
       radial-gradient(circle at 50% 100%, rgba(139,107,255,0.12), transparent 45%);
     background-attachment:fixed;
+    position:relative;
   }
+  .decoracion{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:0;
+    pointer-events:none;
+  }
+  .deco{position:absolute;opacity:0.10;animation:flotar 9s ease-in-out infinite;}
+  .deco.d1{width:50px;top:10%;left:6%;animation-delay:0s;}
+  .deco.d2{width:58px;top:62%;left:90%;animation-delay:1.2s;}
+  .deco.d3{width:46px;top:82%;left:9%;animation-delay:2.4s;}
+  .deco.d4{width:56px;top:14%;left:89%;animation-delay:3.6s;}
+  .deco.d5{width:40px;top:44%;left:3%;animation-delay:1.8s;}
+  @keyframes flotar{0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-18px) rotate(7deg);}}
+  .login-wrap, main, header{position:relative; z-index:1;}
   header{
     padding:16px 20px;
     border-bottom:1px solid var(--border);
@@ -52,12 +68,20 @@
     backdrop-filter:blur(14px);
     -webkit-backdrop-filter:blur(14px);
   }
+  header::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,#4f8cff,#8b6bff,#3ecf8e,#e0a63e,#e2534d);
+  }
   header .logo-circle{
     width:36px;height:36px;border-radius:10px;flex-shrink:0;
     background:linear-gradient(135deg,var(--accent),var(--accent2));
     display:flex;align-items:center;justify-content:center;
     box-shadow:0 4px 16px rgba(79,140,255,0.4);
+    animation:bamboleo 3.2s ease-in-out infinite;
   }
+  @keyframes bamboleo{0%,100%{transform:rotate(0deg);}50%{transform:rotate(-6deg);}}
   header h1{
     font-size:17px;margin:0;font-weight:700;letter-spacing:-0.01em;
     background:linear-gradient(90deg,#f1f3f8,#aebdf5 70%);
@@ -102,16 +126,26 @@
   }
   main > section{animation:fadeInUp .35s ease both;}
   .panel{
-    background:linear-gradient(175deg, rgba(31,35,45,0.92), rgba(20,23,30,0.92));
+    position:relative;
+    overflow:hidden;
+    background:
+      repeating-linear-gradient(to bottom, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 25px),
+      linear-gradient(175deg, rgba(31,35,45,0.92), rgba(20,23,30,0.92));
     border:1px solid var(--border);
     border-radius:14px;
-    padding:20px;
+    padding:22px 20px 20px;
     margin-bottom:16px;
     box-shadow:0 14px 34px -18px rgba(0,0,0,0.75);
     animation:fadeInUp .4s ease both;
-    transition:box-shadow .25s ease, border-color .25s ease;
+    transition:box-shadow .25s ease, border-color .25s ease, transform .25s ease;
   }
-  .panel:hover{box-shadow:0 18px 40px -16px rgba(0,0,0,0.8);border-color:#343b49;}
+  .panel::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,#4f8cff,#8b6bff,#3ecf8e,#e0a63e);
+  }
+  .panel:hover{box-shadow:0 18px 40px -16px rgba(0,0,0,0.8);border-color:#343b49;transform:translateY(-2px);}
   .panel h2{
     font-size:13.5px;
     margin:0 0 14px;
@@ -209,7 +243,7 @@
     border-radius:8px;
     transition:background .2s ease;
   }
-  ul.lista li:hover{background:rgba(255,255,255,0.03);}
+  ul.lista li:hover{background:rgba(255,255,255,0.03);transform:translateX(3px);}
   ul.lista li:last-child{border-bottom:none;}
   ul.lista li .info{flex:1;min-width:0;}
   ul.lista li span.g{color:var(--muted);font-size:12px;}
@@ -235,10 +269,18 @@
   .toast-log .item:last-child{border-bottom:none;}
   .login-wrap{
     max-width:420px;
-    margin:48px auto;
+    margin:40px auto;
     padding:0 16px;
     animation:fadeInUp .5s ease both;
   }
+  .hero-ilustracion{
+    display:flex;
+    justify-content:center;
+    margin-bottom:4px;
+    filter:drop-shadow(0 12px 26px rgba(79,140,255,0.3));
+    animation:flotarSuave 4s ease-in-out infinite;
+  }
+  @keyframes flotarSuave{0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);}}
   .login-roles{display:flex;gap:10px;margin-bottom:18px;}
   .login-roles button{flex:1;justify-content:center;}
   .login-roles button.active{
@@ -264,8 +306,49 @@
 </head>
 <body>
 
+<div class="decoracion" aria-hidden="true">
+  <svg class="deco d1" viewBox="0 0 48 48" fill="none" stroke="#4f8cff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 42l4-12L34 6l8 8-24 24z"/><path d="M28 12l8 8"/></svg>
+  <svg class="deco d2" viewBox="0 0 48 48" fill="none" stroke="#8b6bff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M24 10c-5-4-13-4-18-1v26c5-3 13-3 18 1 5-4 13-4 18-1V9c-5-3-13-3-18 1z"/><path d="M24 10v26"/></svg>
+  <svg class="deco d3" viewBox="0 0 48 48" fill="none" stroke="#3ecf8e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="18" width="40" height="12" rx="2" transform="rotate(-12 24 24)"/><path d="M12 19l2 10M20 18l2 10M28 17l2 10M36 16l2 10" transform="rotate(-12 24 24)"/></svg>
+  <svg class="deco d4" viewBox="0 0 48 48" fill="none" stroke="#e0a63e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M24 14 4 22l20 8 20-8-20-8z"/><path d="M12 25v8c0 3 6 5 12 5s12-2 12-5v-8"/><path d="M44 22v10"/></svg>
+  <svg class="deco d5" viewBox="0 0 48 48" fill="none" stroke="#e2534d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M24 18c-7-6-16-2-16 8 0 9 7 16 16 16s16-7 16-16c0-10-9-14-16-8z"/><path d="M24 18v-6"/><path d="M24 12c2-3 6-3 7-1"/></svg>
+</div>
+
 <!-- LOGIN -->
 <div class="login-wrap" id="pantalla-login">
+  <div class="hero-ilustracion">
+    <svg width="170" height="130" viewBox="0 0 180 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gradCara" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#4f8cff"/>
+          <stop offset="100%" stop-color="#8b6bff"/>
+        </linearGradient>
+      </defs>
+      <g stroke="#4f8cff" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.85">
+        <path d="M20 35 V20 H35"/>
+        <path d="M160 35 V20 H145"/>
+        <path d="M20 105 V120 H35"/>
+        <path d="M160 105 V120 H145"/>
+      </g>
+      <circle cx="90" cy="66" r="36" fill="url(#gradCara)" opacity="0.16"/>
+      <circle cx="90" cy="60" r="22" fill="none" stroke="#e8eaed" stroke-width="2.5"/>
+      <circle cx="82" cy="56" r="2.6" fill="#e8eaed"/>
+      <circle cx="98" cy="56" r="2.6" fill="#e8eaed"/>
+      <path d="M80 68c4 4 16 4 20 0" stroke="#e8eaed" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M70 46c4-10 36-10 40 0" stroke="#e8eaed" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <line x1="60" y1="40" x2="120" y2="40" stroke="#3ecf8e" stroke-width="2" opacity="0.8">
+        <animate attributeName="y1" values="40;85;40" dur="2.6s" repeatCount="indefinite"/>
+        <animate attributeName="y2" values="40;85;40" dur="2.6s" repeatCount="indefinite"/>
+      </line>
+      <circle cx="126" cy="92" r="14" fill="#3ecf8e"/>
+      <path d="M120 92l4 4 8-8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <g fill="#8b6bff" opacity="0.85">
+        <circle cx="33" cy="58" r="2"/>
+        <circle cx="152" cy="52" r="1.6"/>
+        <circle cx="42" cy="96" r="1.6"/>
+      </g>
+    </svg>
+  </div>
   <div class="panel">
     <h2>Acceso</h2>
     <div class="login-roles">
@@ -302,6 +385,9 @@
         <input type="password" id="prof-crear-clave" placeholder="Mínimo 4 caracteres">
         <label>Confirmar clave</label>
         <input type="password" id="prof-crear-clave2" placeholder="Repite la clave">
+        <label>Materia que impartes</label>
+        <select id="prof-crear-materia" required></select>
+        <input type="text" id="prof-crear-materia-otra" class="hidden" placeholder="Escribe el nombre de la materia">
         <div class="row"><button class="btn" id="btn-crear-profesor" type="button">Crear cuenta</button></div>
         <div class="status hidden" id="status-crear-profesor"></div>
       </div>
@@ -326,6 +412,8 @@
       <div id="alumno-crear" class="hidden">
         <label>Nombre completo</label>
         <input type="text" id="alu-crear-nombre" placeholder="Ej. Ana López">
+        <label>Número de control escolar</label>
+        <input type="text" id="alu-crear-numctrl" placeholder="Ej. 22EV0123">
         <label>Grado</label>
         <select id="alu-crear-grado" required>
           <option value="">-- Selecciona tu grado --</option>
@@ -371,7 +459,7 @@
 
 <header>
   <div class="logo-circle">
-    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9"><path d="M4 7V5a1 1 0 0 1 1-1h2M4 17v2a1 1 0 0 0 1 1h2M20 7V5a1 1 0 0 0-1-1h-2M20 17v2a1 1 0 0 1-1 1h-2"/><circle cx="12" cy="12" r="3.2"/></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6 2 11l10 5 10-5-10-5z"/><path d="M6 13v4c0 1.5 3 2.5 6 2.5s6-1 6-2.5v-4"/><path d="M22 11v5"/></svg>
   </div>
   <h1>Control de Asistencias - Reconocimiento Facial</h1>
   <div class="usuario-box">
@@ -394,6 +482,8 @@
       <h2>Registrar alumno manualmente</h2>
       <label>Nombre completo</label>
       <input type="text" id="reg-nombre" placeholder="Ej. Ana López">
+      <label>Número de control escolar</label>
+      <input type="text" id="reg-numctrl" placeholder="Ej. 22EV0123">
       <label>Grado</label>
       <select id="reg-grado" required>
         <option value="">-- Selecciona el grado --</option>
@@ -435,12 +525,24 @@
     </div>
 
     <div class="panel">
-      <h2>Mi cuenta de profesor</h2>
-      <p style="font-size:13px;color:var(--muted);margin-top:-6px;">Usuario: <strong id="profesor-usuario-actual"></strong></p>
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-4.1 3.4-7 7.5-7s7.5 2.9 7.5 7"/></svg>
+        Mi cuenta de profesor
+      </h2>
+      <p style="font-size:13px;color:var(--muted);margin-top:-6px;">
+        Usuario: <strong id="profesor-usuario-actual"></strong> ·
+        Materia: <strong id="profesor-materia-actual"></strong>
+      </p>
       <label>Nueva clave</label>
       <input type="password" id="nueva-clave-profesor" placeholder="Nueva clave (mínimo 4 caracteres)">
       <div class="row"><button class="btn secondary" id="btn-cambiar-clave" type="button">Cambiar clave</button></div>
       <div class="status hidden" id="status-clave"></div>
+
+      <label style="margin-top:6px;">Cambiar materia que impartes</label>
+      <select id="nueva-materia-profesor"></select>
+      <input type="text" id="nueva-materia-otra" class="hidden" placeholder="Escribe el nombre de la materia">
+      <div class="row"><button class="btn secondary" id="btn-cambiar-materia" type="button">Actualizar materia</button></div>
+      <div class="status hidden" id="status-materia"></div>
     </div>
   </section>
 
@@ -468,7 +570,10 @@
   <!-- HISTORIAL (profesor) -->
   <section id="tab-historial" class="hidden">
     <div class="panel">
-      <h2>Historial de asistencias</h2>
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        Historial de asistencias
+      </h2>
       <div class="filters">
         <div>
           <label>Fecha</label>
@@ -478,10 +583,14 @@
           <label>Grupo</label>
           <select id="f-grupo"><option value="">Todos</option></select>
         </div>
+        <div>
+          <label>Materia</label>
+          <select id="f-materia"><option value="">Todas</option></select>
+        </div>
       </div>
       <div style="overflow-x:auto;">
         <table>
-          <thead><tr><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Grupo</th></tr></thead>
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Nombre</th><th>Grupo</th><th>Materia</th></tr></thead>
           <tbody id="tabla-historial"></tbody>
         </table>
       </div>
@@ -502,7 +611,19 @@
     </div>
 
     <div class="panel">
-      <h2>Mis registros</h2>
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"/></svg>
+        Mis materias
+      </h2>
+      <ul class="lista" id="lista-materias"></ul>
+      <div class="empty hidden" id="empty-materias">Aún no tienes asistencias en ninguna materia.</div>
+    </div>
+
+    <div class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg>
+        Mis registros
+      </h2>
       <div class="toast-log" id="log-mios"></div>
       <div class="empty hidden" id="empty-mios">Todavía no tienes asistencias registradas.</div>
       <p class="note">Solo tu profesor puede registrar tu asistencia escaneando tu rostro desde su cuenta.</p>
@@ -517,17 +638,34 @@
 const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
 const UMBRAL = 0.55; // distancia euclidiana máxima para considerar la misma persona
 
+const MATERIAS_DISPONIBLES = [
+  'Matemáticas','Física','Química','Biología','Inglés',
+  'Lectura y Redacción','Ética y Valores','Formación Socioemocional','Educación Física',
+  'Programación','Contabilidad','Administración de Recursos Humanos','Mecánica Automotriz'
+];
+
+function construirOpcionesMaterias(select){
+  select.innerHTML = '<option value="">-- Selecciona tu materia --</option>' +
+    MATERIAS_DISPONIBLES.map(m=>'<option value="'+m+'">'+m+'</option>').join('') +
+    '<option value="Otra">Otra...</option>';
+}
+
 let alumnos = JSON.parse(localStorage.getItem('ca_alumnos') || '[]');
 let asistencias = JSON.parse(localStorage.getItem('ca_asistencias') || '[]');
 
-// Cuentas de profesor: [{usuario, clave}]
+// Cuentas de profesor: [{usuario, clave, materia}]
 let profesores = JSON.parse(localStorage.getItem('ca_profesores') || 'null');
 if(profesores === null){
   profesores = [];
   const claveVieja = localStorage.getItem('ca_clave_profesor');
-  if(claveVieja){ profesores.push({usuario:'profesor', clave: claveVieja}); }
+  if(claveVieja){ profesores.push({usuario:'profesor', clave: claveVieja, materia:''}); }
   localStorage.setItem('ca_profesores', JSON.stringify(profesores));
 }
+(function migrarProfesores(){
+  let cambio = false;
+  profesores.forEach(p=>{ if(p.materia === undefined){ p.materia = ''; cambio = true; } });
+  if(cambio) guardarProfesores();
+})();
 
 // Migración: alumnos antiguos sin usuario/clave propios
 (function migrarAlumnos(){
@@ -541,6 +679,10 @@ if(profesores === null){
       while(alumnos.some(x=>x!==al && x.usuario===candidato)){ candidato = base + n; n++; }
       al.usuario = candidato;
       al.clave = al.clave || 'alumno123';
+      cambio = true;
+    }
+    if(!al.numeroControl){
+      al.numeroControl = 'SIN-DATO';
       cambio = true;
     }
   });
@@ -648,10 +790,23 @@ document.getElementById('btn-entrar-profesor').addEventListener('click', ()=>{
   entrarComoProfesor(cuenta);
 });
 
+function leerMateriaSeleccionada(selectEl, otraEl){
+  if(selectEl.value === 'Otra') return otraEl.value.trim();
+  return selectEl.value;
+}
+
+document.getElementById('prof-crear-materia').addEventListener('change', (e)=>{
+  document.getElementById('prof-crear-materia-otra').classList.toggle('hidden', e.target.value !== 'Otra');
+});
+document.getElementById('nueva-materia-profesor').addEventListener('change', (e)=>{
+  document.getElementById('nueva-materia-otra').classList.toggle('hidden', e.target.value !== 'Otra');
+});
+
 document.getElementById('btn-crear-profesor').addEventListener('click', ()=>{
   const usuario = document.getElementById('prof-crear-usuario').value.trim();
   const clave = document.getElementById('prof-crear-clave').value;
   const clave2 = document.getElementById('prof-crear-clave2').value;
+  const materia = leerMateriaSeleccionada(document.getElementById('prof-crear-materia'), document.getElementById('prof-crear-materia-otra'));
   const el = document.getElementById('status-crear-profesor');
   if(!usuario){ el.textContent='Escribe un usuario.'; el.className='status warn'; return; }
   if(profesores.some(p=>p.usuario.toLowerCase() === usuario.toLowerCase())){
@@ -661,12 +816,16 @@ document.getElementById('btn-crear-profesor').addEventListener('click', ()=>{
   }
   if(clave.length < 4){ el.textContent='La clave debe tener al menos 4 caracteres.'; el.className='status warn'; return; }
   if(clave !== clave2){ el.textContent='Las claves no coinciden.'; el.className='status err'; return; }
-  const cuenta = {usuario, clave};
+  if(!materia){ el.textContent='Selecciona o escribe la materia que impartes.'; el.className='status warn'; return; }
+  const cuenta = {usuario, clave, materia};
   profesores.push(cuenta);
   guardarProfesores();
   document.getElementById('prof-crear-usuario').value = '';
   document.getElementById('prof-crear-clave').value = '';
   document.getElementById('prof-crear-clave2').value = '';
+  document.getElementById('prof-crear-materia').value = '';
+  document.getElementById('prof-crear-materia-otra').value = '';
+  document.getElementById('prof-crear-materia-otra').classList.add('hidden');
   el.className = 'status hidden';
   entrarComoProfesor(cuenta);
 });
@@ -702,6 +861,7 @@ document.getElementById('btn-cam-crear-alumno').addEventListener('click', async 
 
 document.getElementById('btn-crear-alumno').addEventListener('click', async ()=>{
   const nombre = document.getElementById('alu-crear-nombre').value.trim();
+  const numeroControl = document.getElementById('alu-crear-numctrl').value.trim();
   const grado = document.getElementById('alu-crear-grado').value;
   const especialidad = document.getElementById('alu-crear-especialidad').value;
   const usuario = document.getElementById('alu-crear-usuario').value.trim();
@@ -709,6 +869,11 @@ document.getElementById('btn-crear-alumno').addEventListener('click', async ()=>
   const clave2 = document.getElementById('alu-crear-clave2').value;
 
   if(!nombre){ setStatus('status-crear-alumno','Escribe tu nombre completo.','warn'); return; }
+  if(!numeroControl){ setStatus('status-crear-alumno','Escribe tu número de control escolar.','warn'); return; }
+  if(alumnos.some(a=> (a.numeroControl||'').toLowerCase() === numeroControl.toLowerCase())){
+    setStatus('status-crear-alumno','Ese número de control ya está registrado.','err');
+    return;
+  }
   if(!grado){ setStatus('status-crear-alumno','Selecciona tu grado.','warn'); return; }
   if(!especialidad){ setStatus('status-crear-alumno','Selecciona tu especialidad.','warn'); return; }
   if(!usuario){ setStatus('status-crear-alumno','Elige un usuario.','warn'); return; }
@@ -730,7 +895,7 @@ document.getElementById('btn-crear-alumno').addEventListener('click', async ()=>
   const grupo = grado + '° ' + especialidad;
   const nuevoAlumno = {
     id: 'a_' + Date.now(),
-    nombre, grupo, usuario, clave,
+    nombre, numeroControl, grupo, usuario, clave,
     descriptor: Array.from(descriptor),
     fechaRegistro: hoyStr()
   };
@@ -740,6 +905,7 @@ document.getElementById('btn-crear-alumno').addEventListener('click', async ()=>
   detenerCamara('crearAlumno');
 
   document.getElementById('alu-crear-nombre').value = '';
+  document.getElementById('alu-crear-numctrl').value = '';
   document.getElementById('alu-crear-grado').value = '';
   document.getElementById('alu-crear-especialidad').value = '';
   document.getElementById('alu-crear-usuario').value = '';
@@ -757,8 +923,24 @@ function entrarComoProfesor(cuenta){
   document.getElementById('pantalla-login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('nav-profesor').classList.remove('hidden');
-  document.getElementById('header-usuario').textContent = 'Profesor: ' + cuenta.usuario;
+  document.getElementById('header-usuario').textContent = 'Profesor: ' + cuenta.usuario + (cuenta.materia ? ' · ' + cuenta.materia : '');
   document.getElementById('profesor-usuario-actual').textContent = cuenta.usuario;
+  document.getElementById('profesor-materia-actual').textContent = cuenta.materia || 'Sin asignar';
+  const selMateria = document.getElementById('nueva-materia-profesor');
+  const otraMateria = document.getElementById('nueva-materia-otra');
+  if(cuenta.materia && MATERIAS_DISPONIBLES.includes(cuenta.materia)){
+    selMateria.value = cuenta.materia;
+    otraMateria.classList.add('hidden');
+    otraMateria.value = '';
+  }else if(cuenta.materia){
+    selMateria.value = 'Otra';
+    otraMateria.value = cuenta.materia;
+    otraMateria.classList.remove('hidden');
+  }else{
+    selMateria.value = '';
+    otraMateria.classList.add('hidden');
+    otraMateria.value = '';
+  }
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector('.tab-btn[data-tab="registrar"]').classList.add('active');
   document.querySelectorAll('main > section').forEach(s=>s.classList.add('hidden'));
@@ -787,9 +969,10 @@ function resetPantallaLogin(){
   document.getElementById('btn-rol-profesor').classList.remove('active');
   document.getElementById('btn-rol-alumno').classList.remove('active');
 
-  ['prof-login-usuario','prof-login-clave','prof-crear-usuario','prof-crear-clave','prof-crear-clave2',
-   'alu-login-usuario','alu-login-clave','alu-crear-nombre','alu-crear-grado','alu-crear-especialidad','alu-crear-usuario','alu-crear-clave','alu-crear-clave2'
+  ['prof-login-usuario','prof-login-clave','prof-crear-usuario','prof-crear-clave','prof-crear-clave2','prof-crear-materia','prof-crear-materia-otra',
+   'alu-login-usuario','alu-login-clave','alu-crear-nombre','alu-crear-numctrl','alu-crear-grado','alu-crear-especialidad','alu-crear-usuario','alu-crear-clave','alu-crear-clave2'
   ].forEach(id=>{ const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('prof-crear-materia-otra').classList.add('hidden');
 
   ['status-login-profesor','status-crear-profesor','status-login-alumno'].forEach(id=>{
     document.getElementById(id).className = 'status hidden';
@@ -846,9 +1029,15 @@ document.getElementById('btn-cam-reg').addEventListener('click', async ()=>{
 
 document.getElementById('btn-capturar').addEventListener('click', async ()=>{
   const nombre = document.getElementById('reg-nombre').value.trim();
+  const numeroControl = document.getElementById('reg-numctrl').value.trim();
   const usuario = document.getElementById('reg-usuario').value.trim();
   const clave = document.getElementById('reg-clave').value;
   if(!nombre){ setStatus('status-reg','Escribe el nombre del alumno antes de capturar.','warn'); return; }
+  if(!numeroControl){ setStatus('status-reg','Escribe el número de control escolar del alumno.','warn'); return; }
+  if(alumnos.some(a=> (a.numeroControl||'').toLowerCase() === numeroControl.toLowerCase())){
+    setStatus('status-reg','Ese número de control ya está registrado.','err');
+    return;
+  }
   if(!usuario){ setStatus('status-reg','Escribe un usuario para el alumno.','warn'); return; }
   if(alumnos.some(a=> (a.usuario||'').toLowerCase() === usuario.toLowerCase())){
     setStatus('status-reg','Ese usuario ya existe. Elige otro.','err');
@@ -869,13 +1058,14 @@ document.getElementById('btn-capturar').addEventListener('click', async ()=>{
   const grupo = grado + '° ' + especialidad;
   alumnos.push({
     id: 'a_' + Date.now(),
-    nombre, grupo, usuario, clave,
+    nombre, numeroControl, grupo, usuario, clave,
     descriptor: Array.from(descriptor),
     fechaRegistro: hoyStr()
   });
   guardar();
   renderAlumnos();
   document.getElementById('reg-nombre').value = '';
+  document.getElementById('reg-numctrl').value = '';
   document.getElementById('reg-grado').value = '';
   document.getElementById('reg-especialidad').value = '';
   document.getElementById('reg-usuario').value = '';
@@ -939,21 +1129,25 @@ async function cicloAsistencia(){
     setStatus('status-asis','Rostro no reconocido. Ese alumno no está registrado.','warn');
     return;
   }
-  const yaHoy = asistencias.some(a => a.idAlumno === alumno.id && a.fecha === hoyStr());
+  const materiaActual = (profesorActual && profesorActual.materia) ? profesorActual.materia : 'Sin materia asignada';
+  const yaHoy = asistencias.some(a => a.idAlumno === alumno.id && a.fecha === hoyStr() && a.materia === materiaActual);
   if(yaHoy){
-    setStatus('status-asis', alumno.nombre + ' ya fue registrado hoy.', 'ok');
+    setStatus('status-asis', alumno.nombre + ' ya fue registrado hoy en ' + materiaActual + '.', 'ok');
     return;
   }
   const registro = {
     idAlumno: alumno.id,
     nombre: alumno.nombre,
+    numeroControl: alumno.numeroControl || '',
     grupo: alumno.grupo || '',
+    materia: materiaActual,
+    profesor: profesorActual ? profesorActual.usuario : '',
     fecha: hoyStr(),
     hora: horaStr()
   };
   asistencias.push(registro);
   guardar();
-  setStatus('status-asis', 'Presente: ' + alumno.nombre, 'ok');
+  setStatus('status-asis', 'Presente: ' + alumno.nombre + ' (' + materiaActual + ')', 'ok');
   renderLogHoy();
   renderHistorial();
 }
@@ -978,6 +1172,26 @@ document.getElementById('btn-cambiar-clave').addEventListener('click', ()=>{
   el.className = 'status ok';
 });
 
+document.getElementById('btn-cambiar-materia').addEventListener('click', ()=>{
+  const materia = leerMateriaSeleccionada(document.getElementById('nueva-materia-profesor'), document.getElementById('nueva-materia-otra'));
+  const el = document.getElementById('status-materia');
+  if(!materia){
+    el.textContent = 'Selecciona o escribe una materia.';
+    el.className = 'status warn';
+    return;
+  }
+  const cuenta = profesores.find(p=>p.usuario === profesorActual.usuario);
+  if(cuenta){
+    cuenta.materia = materia;
+    profesorActual.materia = materia;
+    guardarProfesores();
+  }
+  document.getElementById('profesor-materia-actual').textContent = materia;
+  document.getElementById('header-usuario').textContent = 'Profesor: ' + profesorActual.usuario + ' · ' + materia;
+  el.textContent = 'Materia actualizada correctamente.';
+  el.className = 'status ok';
+});
+
 /* ---------- RENDER ---------- */
 function setStatus(id, texto, clase){
   const el = document.getElementById(id);
@@ -994,6 +1208,9 @@ function iconoBasura(){
 function iconoLlave(){
   return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2"><circle cx="8" cy="15" r="3.2"/><path d="M10.3 12.7 19 4m-4 4 2 2m-6.3.3L15 6"/></svg>';
 }
+function iconoLibro(){
+  return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b6bff" stroke-width="1.8"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"/></svg>';
+}
 
 function renderAlumnos(){
   const ul = document.getElementById('lista-alumnos');
@@ -1004,7 +1221,7 @@ function renderAlumnos(){
     const li = document.createElement('li');
     const info = document.createElement('div');
     info.className = 'info';
-    info.innerHTML = al.nombre + ' <span class="g">· '+al.usuario+(al.grupo ? ' · '+al.grupo : '')+'</span>';
+    info.innerHTML = al.nombre + ' <span class="g">· '+(al.numeroControl||'—')+' · '+al.usuario+(al.grupo ? ' · '+al.grupo : '')+'</span>';
     li.appendChild(info);
 
     const acciones = document.createElement('div');
@@ -1057,7 +1274,7 @@ function renderLogHoy(){
   deHoy.forEach(a=>{
     const div = document.createElement('div');
     div.className = 'item';
-    div.innerHTML = iconoCheck() + '<span>' + a.nombre + (a.grupo ? ' · '+a.grupo : '') + ' — ' + a.hora + '</span>';
+    div.innerHTML = iconoCheck() + '<span>' + a.nombre + (a.grupo ? ' · '+a.grupo : '') + (a.materia ? ' · '+a.materia : '') + ' — ' + a.hora + '</span>';
     cont.appendChild(div);
   });
 }
@@ -1067,14 +1284,31 @@ function renderVistaAlumno(){
   document.getElementById('alumno-nombre-saludo').textContent = alumnoActual.nombre;
   const mios = asistencias.filter(a=>a.idAlumno === alumnoActual.id).sort((a,b)=> (a.fecha+a.hora) < (b.fecha+b.hora) ? 1 : -1);
   document.getElementById('alumno-contador').textContent = mios.length;
+
   const cont = document.getElementById('log-mios');
   cont.innerHTML = '';
   document.getElementById('empty-mios').classList.toggle('hidden', mios.length > 0);
   mios.forEach(a=>{
     const div = document.createElement('div');
     div.className = 'item';
-    div.innerHTML = iconoCheck() + '<span>' + a.fecha + ' — ' + a.hora + '</span>';
+    div.innerHTML = iconoCheck() + '<span>' + a.fecha + ' — ' + a.hora + (a.materia ? ' · '+a.materia : '') + '</span>';
     cont.appendChild(div);
+  });
+
+  const porMateria = {};
+  mios.forEach(a=>{
+    const m = a.materia || 'Sin materia';
+    porMateria[m] = (porMateria[m] || 0) + 1;
+  });
+  const materias = Object.keys(porMateria).sort();
+  const ulMaterias = document.getElementById('lista-materias');
+  ulMaterias.innerHTML = '';
+  document.getElementById('empty-materias').classList.toggle('hidden', materias.length > 0);
+  materias.forEach(m=>{
+    const li = document.createElement('li');
+    li.innerHTML = '<div class="info">'+iconoLibro()+' <span style="margin-left:6px;">'+m+'</span></div>' +
+      '<span class="g">'+porMateria[m]+' asistencia(s)</span>';
+    ulMaterias.appendChild(li);
   });
 }
 
@@ -1086,28 +1320,40 @@ function actualizarFiltroGrupos(){
   sel.value = actual;
 }
 
+function actualizarFiltroMaterias(){
+  const sel = document.getElementById('f-materia');
+  const actual = sel.value;
+  const materias = [...new Set(asistencias.map(a=>a.materia).filter(Boolean))];
+  sel.innerHTML = '<option value="">Todas</option>' + materias.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+  sel.value = actual;
+}
+
 function renderHistorial(){
   const fFecha = document.getElementById('f-fecha').value.trim();
   const fGrupo = document.getElementById('f-grupo').value;
+  const fMateria = document.getElementById('f-materia').value;
   let filas = asistencias.slice().sort((a,b)=> (a.fecha+a.hora) < (b.fecha+b.hora) ? 1 : -1);
   if(fFecha) filas = filas.filter(a=>a.fecha === fFecha);
   if(fGrupo) filas = filas.filter(a=>a.grupo === fGrupo);
+  if(fMateria) filas = filas.filter(a=>a.materia === fMateria);
   const tbody = document.getElementById('tabla-historial');
   tbody.innerHTML = '';
   document.getElementById('empty-historial').classList.toggle('hidden', filas.length > 0);
   filas.forEach(a=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td>'+a.fecha+'</td><td>'+a.hora+'</td><td>'+a.nombre+'</td><td>'+(a.grupo||'—')+'</td>';
+    tr.innerHTML = '<td>'+a.fecha+'</td><td>'+a.hora+'</td><td>'+a.nombre+'</td><td>'+(a.grupo||'—')+'</td><td>'+(a.materia||'—')+'</td>';
     tbody.appendChild(tr);
   });
+  actualizarFiltroMaterias();
 }
 document.getElementById('f-fecha').addEventListener('input', renderHistorial);
 document.getElementById('f-grupo').addEventListener('change', renderHistorial);
+document.getElementById('f-materia').addEventListener('change', renderHistorial);
 
 document.getElementById('btn-exportar').addEventListener('click', async ()=>{
-  let csv = 'Fecha,Hora,Nombre,Grupo\n';
+  let csv = 'Fecha,Hora,Nombre,No. Control,Grupo,Materia\n';
   asistencias.forEach(a=>{
-    csv += [a.fecha, a.hora, '"'+a.nombre.replace(/"/g,'""')+'"', a.grupo||''].join(',') + '\n';
+    csv += [a.fecha, a.hora, '"'+a.nombre.replace(/"/g,'""')+'"', a.numeroControl||'', a.grupo||'', a.materia||''].join(',') + '\n';
   });
   const nombreArchivo = 'asistencias_' + hoyStr() + '.csv';
   try{
@@ -1141,8 +1387,11 @@ document.getElementById('btn-borrar-historial').addEventListener('click', ()=>{
 });
 
 /* ---------- INICIO ---------- */
+construirOpcionesMaterias(document.getElementById('prof-crear-materia'));
+construirOpcionesMaterias(document.getElementById('nueva-materia-profesor'));
 resetPantallaLogin();
 actualizarFiltroGrupos();
+actualizarFiltroMaterias();
 window.addEventListener('beforeunload', ()=>{
   detenerCamara('reg');
   detenerCamara('asis');
