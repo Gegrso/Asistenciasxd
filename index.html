@@ -302,6 +302,27 @@
     text-shadow:0 0 22px rgba(79,140,255,0.45);
   }
   .stat-label{text-align:center;color:var(--muted);font-size:13px;margin-bottom:4px;}
+  .falta-card{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:10px;
+    background:var(--panel2);
+    animation:fadeIn .3s ease;
+  }
+  .falta-card .cabecera{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;flex-wrap:wrap;}
+  .chip{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600;white-space:nowrap;}
+  .chip.ok{background:rgba(62,207,142,0.15);color:var(--ok);}
+  .chip.pendiente{background:rgba(224,166,62,0.15);color:var(--warn);}
+  .form-justificar{margin-top:10px;display:none;}
+  .form-justificar.visible{display:block;}
+  .form-justificar textarea{
+    width:100%;background:var(--panel);border:1px solid var(--border);color:var(--text);
+    border-radius:8px;padding:9px 10px;font-family:inherit;font-size:13px;margin-bottom:10px;resize:vertical;
+  }
+  .form-justificar input[type=file]{
+    width:100%;font-size:12px;color:var(--muted);margin-bottom:10px;
+  }
 </style>
 </head>
 <body>
@@ -379,6 +400,10 @@
       </div>
 
       <div id="profesor-crear" class="hidden">
+        <label>Nombre completo</label>
+        <input type="text" id="prof-crear-nombre" placeholder="Ej. Juan Pérez López">
+        <label>ID de plataforma</label>
+        <input type="text" id="prof-crear-idplataforma" placeholder="Ej. DGETI-226-045">
         <label>Usuario</label>
         <input type="text" id="prof-crear-usuario" placeholder="Elige un usuario">
         <label>Clave</label>
@@ -471,6 +496,7 @@
 <nav id="nav-profesor" class="hidden">
   <button class="tab-btn active" data-tab="registrar">Registrar</button>
   <button class="tab-btn" data-tab="asistencia">Tomar asistencia</button>
+  <button class="tab-btn" data-tab="faltas">Faltas</button>
   <button class="tab-btn" data-tab="historial">Historial</button>
 </nav>
 
@@ -530,7 +556,9 @@
         Mi cuenta de profesor
       </h2>
       <p style="font-size:13px;color:var(--muted);margin-top:-6px;">
+        <strong id="profesor-nombre-actual" style="color:var(--text);font-size:14px;"></strong><br>
         Usuario: <strong id="profesor-usuario-actual"></strong> ·
+        ID de plataforma: <strong id="profesor-id-actual"></strong><br>
         Materia: <strong id="profesor-materia-actual"></strong>
       </p>
       <label>Nueva clave</label>
@@ -564,6 +592,29 @@
       <h2>Registros de hoy</h2>
       <div class="toast-log" id="log-hoy"></div>
       <div class="empty" id="empty-hoy">Aún no se ha registrado nadie hoy.</div>
+    </div>
+  </section>
+
+  <!-- FALTAS (profesor) -->
+  <section id="tab-faltas" class="hidden">
+    <div class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+        Registrar falta
+      </h2>
+      <label>Alumno</label>
+      <select id="falta-alumno"><option value="">-- Selecciona un alumno --</option></select>
+      <label>Fecha</label>
+      <input type="text" id="falta-fecha" placeholder="AAAA-MM-DD">
+      <div class="row"><button class="btn" id="btn-registrar-falta" type="button">Registrar falta</button></div>
+      <div class="status hidden" id="status-falta"></div>
+      <p class="note">La falta se registra en la materia que impartes actualmente.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Faltas registradas</h2>
+      <div id="log-faltas"></div>
+      <div class="empty hidden" id="empty-faltas">No hay faltas registradas.</div>
     </div>
   </section>
 
@@ -606,8 +657,16 @@
   <section id="tab-alumno" class="hidden">
     <div class="panel">
       <div class="stat-label">Hola, <strong id="alumno-nombre-saludo"></strong></div>
-      <div class="stat-grande" id="alumno-contador">0</div>
-      <div class="stat-label">asistencia(s) registrada(s) en total</div>
+      <div style="display:flex;gap:24px;justify-content:center;margin-top:4px;flex-wrap:wrap;">
+        <div>
+          <div class="stat-grande" id="alumno-contador">0</div>
+          <div class="stat-label">Asistencias</div>
+        </div>
+        <div>
+          <div class="stat-grande" id="alumno-contador-faltas" style="color:var(--err);text-shadow:0 0 22px rgba(226,83,77,0.45);">0</div>
+          <div class="stat-label">Faltas</div>
+        </div>
+      </div>
     </div>
 
     <div class="panel">
@@ -617,6 +676,16 @@
       </h2>
       <ul class="lista" id="lista-materias"></ul>
       <div class="empty hidden" id="empty-materias">Aún no tienes asistencias en ninguna materia.</div>
+    </div>
+
+    <div class="panel">
+      <h2>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+        Mis faltas
+      </h2>
+      <div id="log-faltas-alumno"></div>
+      <div class="empty hidden" id="empty-faltas-alumno">No tienes faltas registradas.</div>
+      <p class="note">Si tienes una falta sin justificar, puedes escribir el motivo y adjuntar una receta médica o foto como comprobante.</p>
     </div>
 
     <div class="panel">
@@ -652,18 +721,24 @@ function construirOpcionesMaterias(select){
 
 let alumnos = JSON.parse(localStorage.getItem('ca_alumnos') || '[]');
 let asistencias = JSON.parse(localStorage.getItem('ca_asistencias') || '[]');
+let faltas = JSON.parse(localStorage.getItem('ca_faltas') || '[]');
+function guardarFaltas(){ localStorage.setItem('ca_faltas', JSON.stringify(faltas)); }
 
-// Cuentas de profesor: [{usuario, clave, materia}]
+// Cuentas de profesor: [{usuario, clave, materia, nombreCompleto, idPlataforma}]
 let profesores = JSON.parse(localStorage.getItem('ca_profesores') || 'null');
 if(profesores === null){
   profesores = [];
   const claveVieja = localStorage.getItem('ca_clave_profesor');
-  if(claveVieja){ profesores.push({usuario:'profesor', clave: claveVieja, materia:''}); }
+  if(claveVieja){ profesores.push({usuario:'profesor', clave: claveVieja, materia:'', nombreCompleto:'Profesor', idPlataforma:''}); }
   localStorage.setItem('ca_profesores', JSON.stringify(profesores));
 }
 (function migrarProfesores(){
   let cambio = false;
-  profesores.forEach(p=>{ if(p.materia === undefined){ p.materia = ''; cambio = true; } });
+  profesores.forEach(p=>{
+    if(p.materia === undefined){ p.materia = ''; cambio = true; }
+    if(p.nombreCompleto === undefined){ p.nombreCompleto = p.usuario; cambio = true; }
+    if(p.idPlataforma === undefined){ p.idPlataforma = '—'; cambio = true; }
+  });
   if(cambio) guardarProfesores();
 })();
 
@@ -712,6 +787,18 @@ function hoyStr(){
 function horaStr(){
   const d = new Date();
   return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+}
+function escaparHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function leerArchivoComoDataURL(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 async function cargarModelos(){
@@ -803,11 +890,15 @@ document.getElementById('nueva-materia-profesor').addEventListener('change', (e)
 });
 
 document.getElementById('btn-crear-profesor').addEventListener('click', ()=>{
+  const nombreCompleto = document.getElementById('prof-crear-nombre').value.trim();
+  const idPlataforma = document.getElementById('prof-crear-idplataforma').value.trim();
   const usuario = document.getElementById('prof-crear-usuario').value.trim();
   const clave = document.getElementById('prof-crear-clave').value;
   const clave2 = document.getElementById('prof-crear-clave2').value;
   const materia = leerMateriaSeleccionada(document.getElementById('prof-crear-materia'), document.getElementById('prof-crear-materia-otra'));
   const el = document.getElementById('status-crear-profesor');
+  if(!nombreCompleto){ el.textContent='Escribe tu nombre completo.'; el.className='status warn'; return; }
+  if(!idPlataforma){ el.textContent='Escribe tu ID de plataforma.'; el.className='status warn'; return; }
   if(!usuario){ el.textContent='Escribe un usuario.'; el.className='status warn'; return; }
   if(profesores.some(p=>p.usuario.toLowerCase() === usuario.toLowerCase())){
     el.textContent = 'Ese usuario ya existe. Elige otro.';
@@ -817,9 +908,11 @@ document.getElementById('btn-crear-profesor').addEventListener('click', ()=>{
   if(clave.length < 4){ el.textContent='La clave debe tener al menos 4 caracteres.'; el.className='status warn'; return; }
   if(clave !== clave2){ el.textContent='Las claves no coinciden.'; el.className='status err'; return; }
   if(!materia){ el.textContent='Selecciona o escribe la materia que impartes.'; el.className='status warn'; return; }
-  const cuenta = {usuario, clave, materia};
+  const cuenta = {usuario, clave, materia, nombreCompleto, idPlataforma};
   profesores.push(cuenta);
   guardarProfesores();
+  document.getElementById('prof-crear-nombre').value = '';
+  document.getElementById('prof-crear-idplataforma').value = '';
   document.getElementById('prof-crear-usuario').value = '';
   document.getElementById('prof-crear-clave').value = '';
   document.getElementById('prof-crear-clave2').value = '';
@@ -923,9 +1016,12 @@ function entrarComoProfesor(cuenta){
   document.getElementById('pantalla-login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('nav-profesor').classList.remove('hidden');
-  document.getElementById('header-usuario').textContent = 'Profesor: ' + cuenta.usuario + (cuenta.materia ? ' · ' + cuenta.materia : '');
+  document.getElementById('header-usuario').textContent = (cuenta.nombreCompleto || cuenta.usuario) + (cuenta.materia ? ' · ' + cuenta.materia : '');
+  document.getElementById('profesor-nombre-actual').textContent = cuenta.nombreCompleto || cuenta.usuario;
   document.getElementById('profesor-usuario-actual').textContent = cuenta.usuario;
+  document.getElementById('profesor-id-actual').textContent = cuenta.idPlataforma || '—';
   document.getElementById('profesor-materia-actual').textContent = cuenta.materia || 'Sin asignar';
+  document.getElementById('falta-fecha').value = hoyStr();
   const selMateria = document.getElementById('nueva-materia-profesor');
   const otraMateria = document.getElementById('nueva-materia-otra');
   if(cuenta.materia && MATERIAS_DISPONIBLES.includes(cuenta.materia)){
@@ -948,6 +1044,7 @@ function entrarComoProfesor(cuenta){
   renderAlumnos();
   renderLogHoy();
   renderHistorial();
+  renderFaltasProfesor();
 }
 
 function entrarComoAlumno(al){
@@ -969,7 +1066,7 @@ function resetPantallaLogin(){
   document.getElementById('btn-rol-profesor').classList.remove('active');
   document.getElementById('btn-rol-alumno').classList.remove('active');
 
-  ['prof-login-usuario','prof-login-clave','prof-crear-usuario','prof-crear-clave','prof-crear-clave2','prof-crear-materia','prof-crear-materia-otra',
+  ['prof-login-usuario','prof-login-clave','prof-crear-nombre','prof-crear-idplataforma','prof-crear-usuario','prof-crear-clave','prof-crear-clave2','prof-crear-materia','prof-crear-materia-otra',
    'alu-login-usuario','alu-login-clave','alu-crear-nombre','alu-crear-numctrl','alu-crear-grado','alu-crear-especialidad','alu-crear-usuario','alu-crear-clave','alu-crear-clave2'
   ].forEach(id=>{ const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('prof-crear-materia-otra').classList.add('hidden');
@@ -1152,6 +1249,62 @@ async function cicloAsistencia(){
   renderHistorial();
 }
 
+/* ---------- FALTAS (profesor) ---------- */
+document.getElementById('btn-registrar-falta').addEventListener('click', ()=>{
+  const idAlumno = document.getElementById('falta-alumno').value;
+  const fecha = document.getElementById('falta-fecha').value.trim() || hoyStr();
+  const el = document.getElementById('status-falta');
+  if(!idAlumno){ el.textContent='Selecciona un alumno.'; el.className='status warn'; return; }
+  const alumno = alumnos.find(a=>a.id === idAlumno);
+  if(!alumno){ el.textContent='No se encontró ese alumno.'; el.className='status err'; return; }
+  const materiaActual = (profesorActual && profesorActual.materia) ? profesorActual.materia : 'Sin materia asignada';
+  if(faltas.some(f=>f.idAlumno === idAlumno && f.fecha === fecha && f.materia === materiaActual)){
+    el.textContent = 'Ya existe una falta registrada para ese alumno, esa materia y esa fecha.';
+    el.className = 'status warn';
+    return;
+  }
+  faltas.push({
+    id: 'f_' + Date.now(),
+    idAlumno,
+    nombre: alumno.nombre,
+    numeroControl: alumno.numeroControl || '',
+    grupo: alumno.grupo || '',
+    materia: materiaActual,
+    profesor: profesorActual ? profesorActual.usuario : '',
+    fecha,
+    justificada: false,
+    textoJustificacion: '',
+    archivoData: '',
+    archivoNombre: '',
+    fechaJustificacion: ''
+  });
+  guardarFaltas();
+  document.getElementById('falta-alumno').value = '';
+  document.getElementById('falta-fecha').value = hoyStr();
+  el.textContent = 'Falta registrada para ' + alumno.nombre + '.';
+  el.className = 'status ok';
+  renderFaltasProfesor();
+});
+
+function renderFaltasProfesor(){
+  const cont = document.getElementById('log-faltas');
+  const todas = faltas.slice().sort((a,b)=> a.fecha < b.fecha ? 1 : -1);
+  document.getElementById('empty-faltas').classList.toggle('hidden', todas.length > 0);
+  cont.innerHTML = todas.map(f=>{
+    const chip = f.justificada
+      ? '<span class="chip ok">Justificada</span>'
+      : '<span class="chip pendiente">Sin justificar</span>';
+    const detalle = f.justificada
+      ? '<p class="note" style="margin-top:6px;">"' + escaparHtml(f.textoJustificacion || '') + '"' +
+        (f.archivoNombre ? ' · <a href="' + f.archivoData + '" download="' + escaparHtml(f.archivoNombre) + '" style="color:var(--accent);">Ver archivo adjunto</a>' : '') +
+        '</p>'
+      : '';
+    return '<div class="falta-card"><div class="cabecera"><span>' + escaparHtml(f.nombre) +
+      (f.grupo ? ' · ' + escaparHtml(f.grupo) : '') + ' — ' + f.fecha +
+      (f.materia ? ' · ' + escaparHtml(f.materia) : '') + '</span>' + chip + '</div>' + detalle + '</div>';
+  }).join('');
+}
+
 /* ---------- MI CUENTA (profesor) ---------- */
 document.getElementById('btn-cambiar-clave').addEventListener('click', ()=>{
   const val = document.getElementById('nueva-clave-profesor').value.trim();
@@ -1252,10 +1405,13 @@ function renderAlumnos(){
       if(confirm('¿Eliminar a ' + al.nombre + '? También se borrará su historial de asistencias.')){
         alumnos = alumnos.filter(a=>a.id !== al.id);
         asistencias = asistencias.filter(a=>a.idAlumno !== al.id);
+        faltas = faltas.filter(f=>f.idAlumno !== al.id);
         guardar();
+        guardarFaltas();
         renderAlumnos();
         renderLogHoy();
         renderHistorial();
+        renderFaltasProfesor();
       }
     });
     acciones.appendChild(btnBorrar);
@@ -1264,6 +1420,15 @@ function renderAlumnos(){
     ul.appendChild(li);
   });
   actualizarFiltroGrupos();
+  poblarSelectFaltaAlumno();
+}
+
+function poblarSelectFaltaAlumno(){
+  const sel = document.getElementById('falta-alumno');
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">-- Selecciona un alumno --</option>' +
+    alumnos.map(a=>'<option value="'+a.id+'">'+a.nombre+(a.grupo ? ' ('+a.grupo+')' : '')+'</option>').join('');
+  sel.value = actual;
 }
 
 function renderLogHoy(){
@@ -1284,6 +1449,10 @@ function renderVistaAlumno(){
   document.getElementById('alumno-nombre-saludo').textContent = alumnoActual.nombre;
   const mios = asistencias.filter(a=>a.idAlumno === alumnoActual.id).sort((a,b)=> (a.fecha+a.hora) < (b.fecha+b.hora) ? 1 : -1);
   document.getElementById('alumno-contador').textContent = mios.length;
+
+  const misFaltas = faltas.filter(f=>f.idAlumno === alumnoActual.id).sort((a,b)=> a.fecha < b.fecha ? 1 : -1);
+  document.getElementById('alumno-contador-faltas').textContent = misFaltas.length;
+  renderMisFaltas(misFaltas);
 
   const cont = document.getElementById('log-mios');
   cont.innerHTML = '';
@@ -1311,6 +1480,88 @@ function renderVistaAlumno(){
     ulMaterias.appendChild(li);
   });
 }
+
+function iconoClip(){
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a5.5 5.5 0 0 1-7.78-7.78l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.19 9.19a1.5 1.5 0 0 1-2.12-2.12l8.49-8.49"/></svg>';
+}
+
+function renderMisFaltas(misFaltas){
+  const cont = document.getElementById('log-faltas-alumno');
+  document.getElementById('empty-faltas-alumno').classList.toggle('hidden', misFaltas.length > 0);
+  cont.innerHTML = misFaltas.map(f=>{
+    const chip = f.justificada
+      ? '<span class="chip ok">Justificada</span>'
+      : '<span class="chip pendiente">Sin justificar</span>';
+    let detalle = '';
+    if(f.justificada){
+      detalle = '<p class="note" style="margin-top:6px;">"' + escaparHtml(f.textoJustificacion || '') + '"' +
+        (f.archivoNombre ? ' · <a href="' + f.archivoData + '" download="' + escaparHtml(f.archivoNombre) + '" style="color:var(--accent);">' + iconoClip() + ' Ver comprobante</a>' : '') +
+        '</p>';
+    }else{
+      detalle = '<div class="form-justificar" id="form-justificar-' + f.id + '">' +
+        '<textarea id="texto-justificar-' + f.id + '" placeholder="Escribe el motivo de tu falta..." rows="2"></textarea>' +
+        '<input type="file" id="archivo-justificar-' + f.id + '" accept="image/*,.pdf">' +
+        '<div class="row"><button class="btn btn-enviar-justificacion" type="button" data-id="' + f.id + '">Enviar justificación</button></div>' +
+        '<div class="status hidden" id="status-justificar-' + f.id + '"></div>' +
+        '</div>' +
+        '<div class="row" style="margin-top:8px;"><button class="btn secondary btn-mostrar-justificar" type="button" data-id="' + f.id + '">Justificar esta falta</button></div>';
+    }
+    return '<div class="falta-card"><div class="cabecera"><span>' + f.fecha +
+      (f.materia ? ' · ' + escaparHtml(f.materia) : '') + '</span>' + chip + '</div>' + detalle + '</div>';
+  }).join('');
+}
+
+async function enviarJustificacion(id){
+  const falta = faltas.find(f=>f.id === id);
+  if(!falta) return;
+  const textoEl = document.getElementById('texto-justificar-' + id);
+  const archivoEl = document.getElementById('archivo-justificar-' + id);
+  const statusEl = document.getElementById('status-justificar-' + id);
+  const texto = textoEl ? textoEl.value.trim() : '';
+  if(!texto){
+    if(statusEl){ statusEl.textContent = 'Escribe el motivo de tu falta.'; statusEl.className = 'status warn'; }
+    return;
+  }
+  let archivoData = '', archivoNombre = '';
+  const archivo = archivoEl && archivoEl.files && archivoEl.files[0];
+  if(archivo){
+    if(archivo.size > 4 * 1024 * 1024){
+      if(statusEl){ statusEl.textContent = 'El archivo es demasiado grande (máximo 4MB).'; statusEl.className = 'status err'; }
+      return;
+    }
+    try{
+      archivoData = await leerArchivoComoDataURL(archivo);
+      archivoNombre = archivo.name;
+    }catch(e){
+      if(statusEl){ statusEl.textContent = 'No se pudo leer el archivo.'; statusEl.className = 'status err'; }
+      return;
+    }
+  }
+  falta.justificada = true;
+  falta.textoJustificacion = texto;
+  falta.archivoData = archivoData;
+  falta.archivoNombre = archivoNombre;
+  falta.fechaJustificacion = hoyStr();
+  guardarFaltas();
+  renderVistaAlumno();
+}
+
+document.getElementById('log-faltas-alumno').addEventListener('click', (ev)=>{
+  const btnMostrar = ev.target.closest('.btn-mostrar-justificar');
+  if(btnMostrar){
+    const id = btnMostrar.getAttribute('data-id');
+    const form = document.getElementById('form-justificar-' + id);
+    if(form){
+      form.classList.toggle('visible');
+      btnMostrar.closest('.row').classList.toggle('hidden', form.classList.contains('visible'));
+    }
+    return;
+  }
+  const btnEnviar = ev.target.closest('.btn-enviar-justificacion');
+  if(btnEnviar){
+    enviarJustificacion(btnEnviar.getAttribute('data-id'));
+  }
+});
 
 function actualizarFiltroGrupos(){
   const sel = document.getElementById('f-grupo');
