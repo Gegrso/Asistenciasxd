@@ -541,6 +541,7 @@
       <div class="row">
         <button class="btn secondary" id="btn-cam-reg">Iniciar cámara</button>
         <button class="btn" id="btn-capturar" disabled>Capturar rostro y guardar</button>
+        <button class="btn secondary" id="btn-cam-reg-cambiar" disabled title="Cambiar entre cámara frontal y trasera"><span id="icono-switch-reg"></span> Cambiar cámara</button>
       </div>
       <div class="status" id="status-reg">La cámara está apagada.</div>
       <p class="note">También puedes decirle al alumno que cree su propia cuenta desde la pantalla de acceso, en "Alumno &gt; Crear cuenta".</p>
@@ -586,6 +587,7 @@
       <div class="row">
         <button class="btn secondary" id="btn-cam-asis">Iniciar cámara</button>
         <button class="btn danger" id="btn-cam-asis-stop" disabled>Apagar cámara</button>
+        <button class="btn secondary" id="btn-cam-asis-cambiar" disabled title="Cambiar entre cámara frontal y trasera"><span id="icono-switch-asis"></span> Cambiar cámara</button>
       </div>
       <div class="status" id="status-asis">La cámara está apagada.</div>
     </div>
@@ -781,6 +783,7 @@ if(profesores === null){
 let modelosListos = false;
 let streamReg = null, streamAsis = null, streamCrearAlumno = null;
 let loopAsisId = null;
+let facingModeReg = 'user', facingModeAsis = 'user';
 
 let modoActual = null;      // 'profesor' | 'alumno'
 let alumnoActual = null;    // objeto alumno cuando modoActual === 'alumno'
@@ -1125,16 +1128,32 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 });
 
 /* ---------- CÁMARA: REGISTRAR (profesor registra manualmente) ---------- */
+document.getElementById('icono-switch-reg').innerHTML = iconoCambiarCamara();
+document.getElementById('icono-switch-asis').innerHTML = iconoCambiarCamara();
 const videoReg = document.getElementById('video-reg');
 document.getElementById('btn-cam-reg').addEventListener('click', async ()=>{
   try{
-    streamReg = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+    streamReg = await navigator.mediaDevices.getUserMedia({video:{facingMode:facingModeReg}});
     videoReg.srcObject = streamReg;
     marcarVideoActivo(videoReg, true);
     document.getElementById('btn-capturar').disabled = false;
+    document.getElementById('btn-cam-reg-cambiar').disabled = false;
     setStatus('status-reg', 'Cámara encendida. Encuadra el rostro y pulsa "Capturar".', 'ok');
   }catch(err){
     setStatus('status-reg', 'No se pudo acceder a la cámara: ' + err.message, 'err');
+  }
+});
+
+document.getElementById('btn-cam-reg-cambiar').addEventListener('click', async ()=>{
+  if(!streamReg) return;
+  facingModeReg = facingModeReg === 'user' ? 'environment' : 'user';
+  streamReg.getTracks().forEach(t=>t.stop());
+  try{
+    streamReg = await navigator.mediaDevices.getUserMedia({video:{facingMode:facingModeReg}});
+    videoReg.srcObject = streamReg;
+    setStatus('status-reg', facingModeReg === 'user' ? 'Usando cámara frontal.' : 'Usando cámara trasera.', 'ok');
+  }catch(err){
+    setStatus('status-reg', 'No se pudo cambiar de cámara: ' + err.message, 'err');
   }
 });
 
@@ -1188,11 +1207,12 @@ document.getElementById('btn-capturar').addEventListener('click', async ()=>{
 const videoAsis = document.getElementById('video-asis');
 document.getElementById('btn-cam-asis').addEventListener('click', async ()=>{
   try{
-    streamAsis = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+    streamAsis = await navigator.mediaDevices.getUserMedia({video:{facingMode:facingModeAsis}});
     videoAsis.srcObject = streamAsis;
     marcarVideoActivo(videoAsis, true);
     document.getElementById('btn-cam-asis').disabled = true;
     document.getElementById('btn-cam-asis-stop').disabled = false;
+    document.getElementById('btn-cam-asis-cambiar').disabled = false;
     setStatus('status-asis','Buscando rostros...','ok');
     loopAsisId = setInterval(cicloAsistencia, 1500);
   }catch(err){
@@ -1201,12 +1221,26 @@ document.getElementById('btn-cam-asis').addEventListener('click', async ()=>{
 });
 document.getElementById('btn-cam-asis-stop').addEventListener('click', ()=> detenerCamara('asis'));
 
+document.getElementById('btn-cam-asis-cambiar').addEventListener('click', async ()=>{
+  if(!streamAsis) return;
+  facingModeAsis = facingModeAsis === 'user' ? 'environment' : 'user';
+  streamAsis.getTracks().forEach(t=>t.stop());
+  try{
+    streamAsis = await navigator.mediaDevices.getUserMedia({video:{facingMode:facingModeAsis}});
+    videoAsis.srcObject = streamAsis;
+    setStatus('status-asis', facingModeAsis === 'user' ? 'Usando cámara frontal. Buscando rostros...' : 'Usando cámara trasera. Buscando rostros...', 'ok');
+  }catch(err){
+    setStatus('status-asis', 'No se pudo cambiar de cámara: ' + err.message, 'err');
+  }
+});
+
 function detenerCamara(cual){
   if(cual === 'reg' && streamReg){
     streamReg.getTracks().forEach(t=>t.stop());
     streamReg = null;
     marcarVideoActivo(videoReg, false);
     document.getElementById('btn-capturar').disabled = true;
+    document.getElementById('btn-cam-reg-cambiar').disabled = true;
     setStatus('status-reg','La cámara está apagada.','');
   }
   if(cual === 'asis' && streamAsis){
@@ -1216,6 +1250,7 @@ function detenerCamara(cual){
     clearInterval(loopAsisId);
     document.getElementById('btn-cam-asis').disabled = false;
     document.getElementById('btn-cam-asis-stop').disabled = true;
+    document.getElementById('btn-cam-asis-cambiar').disabled = true;
     setStatus('status-asis','La cámara está apagada.','');
   }
   if(cual === 'crearAlumno' && streamCrearAlumno){
@@ -1413,6 +1448,9 @@ function iconoLlave(){
 }
 function iconoLibro(){
   return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b6bff" stroke-width="1.8"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"/></svg>';
+}
+function iconoCambiarCamara(){
+  return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M17 2l4 4-4 4"/><path d="M21 6H8a5 5 0 0 0-5 5"/><path d="M7 22l-4-4 4-4"/><path d="M3 18h13a5 5 0 0 0 5-5"/></svg>';
 }
 
 function renderAlumnos(){
