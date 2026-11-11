@@ -461,7 +461,7 @@
     </div>
   </section>
 
-  <!-- VISTA ALUMNO -->
+  <!-- VISTA ALUMNO (solo lectura) -->
   <section id="tab-alumno" class="hidden">
     <div class="panel">
       <div class="stat-label">Hola, <strong id="alumno-nombre-saludo"></strong></div>
@@ -470,22 +470,10 @@
     </div>
 
     <div class="panel">
-      <h2>Registrar mi asistencia</h2>
-      <div class="video-wrap">
-        <video id="video-alumno" autoplay muted playsinline></video>
-      </div>
-      <div class="row">
-        <button class="btn secondary" id="btn-cam-alumno">Iniciar cámara</button>
-        <button class="btn" id="btn-capturar-alumno" disabled>Tomar foto y registrar asistencia</button>
-      </div>
-      <div class="status" id="status-alumno">La cámara está apagada.</div>
-      <p class="note">Mira de frente, con buena luz. Tu profesor podrá ver este registro en su historial.</p>
-    </div>
-
-    <div class="panel">
       <h2>Mis registros</h2>
       <div class="toast-log" id="log-mios"></div>
       <div class="empty hidden" id="empty-mios">Todavía no tienes asistencias registradas.</div>
+      <p class="note">Solo tu profesor puede registrar tu asistencia escaneando tu rostro desde su cuenta.</p>
     </div>
   </section>
 
@@ -528,7 +516,7 @@ if(profesores === null){
 })();
 
 let modelosListos = false;
-let streamReg = null, streamAsis = null, streamAlumno = null, streamCrearAlumno = null;
+let streamReg = null, streamAsis = null, streamCrearAlumno = null;
 let loopAsisId = null;
 
 let modoActual = null;      // 'profesor' | 'alumno'
@@ -783,7 +771,6 @@ function resetPantallaLogin(){
 function salir(){
   detenerCamara('reg');
   detenerCamara('asis');
-  detenerCamara('alumno');
   detenerCamara('crearAlumno');
   modoActual = null;
   alumnoActual = null;
@@ -871,52 +858,6 @@ document.getElementById('btn-cam-asis').addEventListener('click', async ()=>{
 });
 document.getElementById('btn-cam-asis-stop').addEventListener('click', ()=> detenerCamara('asis'));
 
-/* ---------- CÁMARA: AUTOSERVICIO (alumno ya con sesión) ---------- */
-const videoAlumno = document.getElementById('video-alumno');
-document.getElementById('btn-cam-alumno').addEventListener('click', async ()=>{
-  try{
-    streamAlumno = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
-    videoAlumno.srcObject = streamAlumno;
-    marcarVideoActivo(videoAlumno, true);
-    document.getElementById('btn-cam-alumno').disabled = true;
-    document.getElementById('btn-capturar-alumno').disabled = false;
-    setStatus('status-alumno','Cámara encendida. Encuadra tu rostro y pulsa "Tomar foto".','ok');
-  }catch(err){
-    setStatus('status-alumno', 'No se pudo acceder a la cámara: ' + err.message, 'err');
-  }
-});
-
-document.getElementById('btn-capturar-alumno').addEventListener('click', async ()=>{
-  if(!alumnoActual) return;
-  if(!modelosListos){ setStatus('status-alumno','Los modelos aún se están cargando, espera un momento.','warn'); return; }
-  setStatus('status-alumno','Analizando rostro...','');
-  const descriptor = await obtenerDescriptor(videoAlumno);
-  if(!descriptor){
-    setStatus('status-alumno','No se detectó un rostro claro. Intenta de nuevo con mejor luz y de frente.','err');
-    return;
-  }
-  const dist = faceapi.euclideanDistance(descriptor, alumnoActual.descriptor);
-  if(dist >= UMBRAL){
-    setStatus('status-alumno','El rostro no coincide con tu registro facial. Pide ayuda a tu profesor.','err');
-    return;
-  }
-  const yaHoy = asistencias.some(a => a.idAlumno === alumnoActual.id && a.fecha === hoyStr());
-  if(yaHoy){
-    setStatus('status-alumno','Ya registraste tu asistencia hoy.','ok');
-    return;
-  }
-  asistencias.push({
-    idAlumno: alumnoActual.id,
-    nombre: alumnoActual.nombre,
-    grupo: alumnoActual.grupo || '',
-    fecha: hoyStr(),
-    hora: horaStr()
-  });
-  guardar();
-  setStatus('status-alumno','Asistencia registrada. ¡Gracias, ' + alumnoActual.nombre + '!','ok');
-  renderVistaAlumno();
-});
-
 function detenerCamara(cual){
   if(cual === 'reg' && streamReg){
     streamReg.getTracks().forEach(t=>t.stop());
@@ -933,14 +874,6 @@ function detenerCamara(cual){
     document.getElementById('btn-cam-asis').disabled = false;
     document.getElementById('btn-cam-asis-stop').disabled = true;
     setStatus('status-asis','La cámara está apagada.','');
-  }
-  if(cual === 'alumno' && streamAlumno){
-    streamAlumno.getTracks().forEach(t=>t.stop());
-    streamAlumno = null;
-    marcarVideoActivo(videoAlumno, false);
-    document.getElementById('btn-cam-alumno').disabled = false;
-    document.getElementById('btn-capturar-alumno').disabled = true;
-    setStatus('status-alumno','La cámara está apagada.','');
   }
   if(cual === 'crearAlumno' && streamCrearAlumno){
     streamCrearAlumno.getTracks().forEach(t=>t.stop());
@@ -1171,7 +1104,6 @@ actualizarFiltroGrupos();
 window.addEventListener('beforeunload', ()=>{
   detenerCamara('reg');
   detenerCamara('asis');
-  detenerCamara('alumno');
   detenerCamara('crearAlumno');
 });
 </script>
