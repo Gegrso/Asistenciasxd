@@ -326,8 +326,24 @@
       <div id="alumno-crear" class="hidden">
         <label>Nombre completo</label>
         <input type="text" id="alu-crear-nombre" placeholder="Ej. Ana López">
-        <label>Grupo / grado (opcional)</label>
-        <input type="text" id="alu-crear-grupo" placeholder="Ej. 4to A">
+        <label>Grado</label>
+        <select id="alu-crear-grado" required>
+          <option value="">-- Selecciona tu grado --</option>
+          <option value="1">1°</option>
+          <option value="2">2°</option>
+          <option value="3">3°</option>
+          <option value="4">4°</option>
+          <option value="5">5°</option>
+          <option value="6">6°</option>
+        </select>
+        <label>Especialidad</label>
+        <select id="alu-crear-especialidad" required>
+          <option value="">-- Selecciona tu especialidad --</option>
+          <option value="Programación">Programación</option>
+          <option value="Contabilidad">Contabilidad</option>
+          <option value="Administración de Recursos Humanos">Administración de Recursos Humanos</option>
+          <option value="Mecánica Automotriz">Mecánica Automotriz</option>
+        </select>
         <label>Usuario</label>
         <input type="text" id="alu-crear-usuario" placeholder="Elige un usuario">
         <label>Clave</label>
@@ -378,8 +394,24 @@
       <h2>Registrar alumno manualmente</h2>
       <label>Nombre completo</label>
       <input type="text" id="reg-nombre" placeholder="Ej. Ana López">
-      <label>Grupo / grado (opcional)</label>
-      <input type="text" id="reg-grupo" placeholder="Ej. 4to A">
+      <label>Grado</label>
+      <select id="reg-grado" required>
+        <option value="">-- Selecciona el grado --</option>
+        <option value="1">1°</option>
+        <option value="2">2°</option>
+        <option value="3">3°</option>
+        <option value="4">4°</option>
+        <option value="5">5°</option>
+        <option value="6">6°</option>
+      </select>
+      <label>Especialidad</label>
+      <select id="reg-especialidad" required>
+        <option value="">-- Selecciona la especialidad --</option>
+        <option value="Programación">Programación</option>
+        <option value="Contabilidad">Contabilidad</option>
+        <option value="Administración de Recursos Humanos">Administración de Recursos Humanos</option>
+        <option value="Mecánica Automotriz">Mecánica Automotriz</option>
+      </select>
       <label>Usuario (para que el alumno inicie sesión)</label>
       <input type="text" id="reg-usuario" placeholder="Ej. ana.lopez">
       <label>Clave</label>
@@ -670,12 +702,15 @@ document.getElementById('btn-cam-crear-alumno').addEventListener('click', async 
 
 document.getElementById('btn-crear-alumno').addEventListener('click', async ()=>{
   const nombre = document.getElementById('alu-crear-nombre').value.trim();
-  const grupo = document.getElementById('alu-crear-grupo').value.trim();
+  const grado = document.getElementById('alu-crear-grado').value;
+  const especialidad = document.getElementById('alu-crear-especialidad').value;
   const usuario = document.getElementById('alu-crear-usuario').value.trim();
   const clave = document.getElementById('alu-crear-clave').value;
   const clave2 = document.getElementById('alu-crear-clave2').value;
 
   if(!nombre){ setStatus('status-crear-alumno','Escribe tu nombre completo.','warn'); return; }
+  if(!grado){ setStatus('status-crear-alumno','Selecciona tu grado.','warn'); return; }
+  if(!especialidad){ setStatus('status-crear-alumno','Selecciona tu especialidad.','warn'); return; }
   if(!usuario){ setStatus('status-crear-alumno','Elige un usuario.','warn'); return; }
   if(alumnos.some(a=> (a.usuario||'').toLowerCase() === usuario.toLowerCase())){
     setStatus('status-crear-alumno','Ese usuario ya existe. Elige otro.','err');
@@ -692,6 +727,7 @@ document.getElementById('btn-crear-alumno').addEventListener('click', async ()=>
     return;
   }
 
+  const grupo = grado + '° ' + especialidad;
   const nuevoAlumno = {
     id: 'a_' + Date.now(),
     nombre, grupo, usuario, clave,
@@ -704,7 +740,8 @@ document.getElementById('btn-crear-alumno').addEventListener('click', async ()=>
   detenerCamara('crearAlumno');
 
   document.getElementById('alu-crear-nombre').value = '';
-  document.getElementById('alu-crear-grupo').value = '';
+  document.getElementById('alu-crear-grado').value = '';
+  document.getElementById('alu-crear-especialidad').value = '';
   document.getElementById('alu-crear-usuario').value = '';
   document.getElementById('alu-crear-clave').value = '';
   document.getElementById('alu-crear-clave2').value = '';
@@ -751,7 +788,7 @@ function resetPantallaLogin(){
   document.getElementById('btn-rol-alumno').classList.remove('active');
 
   ['prof-login-usuario','prof-login-clave','prof-crear-usuario','prof-crear-clave','prof-crear-clave2',
-   'alu-login-usuario','alu-login-clave','alu-crear-nombre','alu-crear-grupo','alu-crear-usuario','alu-crear-clave','alu-crear-clave2'
+   'alu-login-usuario','alu-login-clave','alu-crear-nombre','alu-crear-grado','alu-crear-especialidad','alu-crear-usuario','alu-crear-clave','alu-crear-clave2'
   ].forEach(id=>{ const el = document.getElementById(id); if(el) el.value = ''; });
 
   ['status-login-profesor','status-crear-profesor','status-login-alumno'].forEach(id=>{
@@ -818,6 +855,10 @@ document.getElementById('btn-capturar').addEventListener('click', async ()=>{
     return;
   }
   if(clave.length < 4){ setStatus('status-reg','La clave debe tener al menos 4 caracteres.','warn'); return; }
+  const grado = document.getElementById('reg-grado').value;
+  const especialidad = document.getElementById('reg-especialidad').value;
+  if(!grado){ setStatus('status-reg','Selecciona el grado del alumno.','warn'); return; }
+  if(!especialidad){ setStatus('status-reg','Selecciona la especialidad del alumno.','warn'); return; }
   if(!modelosListos){ setStatus('status-reg','Los modelos aún se están cargando, espera un momento.','warn'); return; }
   setStatus('status-reg','Analizando rostro...','');
   const descriptor = await obtenerDescriptor(videoReg);
@@ -825,7 +866,7 @@ document.getElementById('btn-capturar').addEventListener('click', async ()=>{
     setStatus('status-reg','No se detectó un rostro claro. Intenta de nuevo con mejor luz y de frente.','err');
     return;
   }
-  const grupo = document.getElementById('reg-grupo').value.trim();
+  const grupo = grado + '° ' + especialidad;
   alumnos.push({
     id: 'a_' + Date.now(),
     nombre, grupo, usuario, clave,
@@ -835,7 +876,8 @@ document.getElementById('btn-capturar').addEventListener('click', async ()=>{
   guardar();
   renderAlumnos();
   document.getElementById('reg-nombre').value = '';
-  document.getElementById('reg-grupo').value = '';
+  document.getElementById('reg-grado').value = '';
+  document.getElementById('reg-especialidad').value = '';
   document.getElementById('reg-usuario').value = '';
   document.getElementById('reg-clave').value = '';
   setStatus('status-reg', 'Alumno "' + nombre + '" guardado correctamente.', 'ok');
